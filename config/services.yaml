@@ -34,3 +34,7 @@ services:
     App\Consumer\Part\Consumer:
         arguments:
             $producer: '@old_sound_rabbit_mq.part_producer'
+
+    App\Controller\TaskController:
+        arguments:
+            $producer: '@old_sound_rabbit_mq.task_producer'

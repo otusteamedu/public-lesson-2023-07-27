@@ -8,6 +8,9 @@ old_sound_rabbit_mq:
         part:
             connection: default
             exchange_options: {name: 'old_sound_rabbit_mq.part', type: direct}
+        task:
+            connection: default
+            exchange_options: {name: 'old_sound_rabbit_mq.task', type: direct}
 
     consumers:
         stream:
@@ -21,4 +24,10 @@ old_sound_rabbit_mq:
             exchange_options: {name: 'old_sound_rabbit_mq.part', type: direct}
             queue_options: {name: 'old_sound_rabbit_mq.consumer.part'}
             callback: App\Consumer\Part\Consumer
+            qos_options: {prefetch_size: 0, prefetch_count: 1, global: false}
+        task:
+            connection: default
+            exchange_options: {name: 'old_sound_rabbit_mq.task', type: direct}
+            queue_options: {name: 'old_sound_rabbit_mq.consumer.task'}
+            callback: App\Consumer\Task\Consumer
             qos_options: {prefetch_size: 0, prefetch_count: 1, global: false}
