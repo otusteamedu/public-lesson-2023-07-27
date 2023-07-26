@@ -1,0 +1,13 @@
+old_sound_rabbit_mq:
+    connections:
+        default:
+            url: '%env(RABBITMQ_URL)%'
+            heartbeat: 5
+
+    consumers:
+        stream:
+            connection: default
+            exchange_options: {name: 'old_sound_rabbit_mq.stream', type: direct}
+            queue_options: {name: 'old_sound_rabbit_mq.consumer.stream'}
+            callback: App\Consumer\Stream\Consumer
+            qos_options: {prefetch_size: 0, prefetch_count: 1, global: false}

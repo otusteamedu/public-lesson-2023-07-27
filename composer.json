@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "*",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.15",
+        "php-amqplib/rabbitmq-bundle": "^2.11",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/console": "6.3.*",
         "symfony/dotenv": "6.3.*",
