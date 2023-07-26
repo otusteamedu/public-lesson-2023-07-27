@@ -30,3 +30,7 @@ services:
     App\Consumer\Stream\Consumer:
         arguments:
             $producer: '@old_sound_rabbit_mq.part_producer'
+
+    App\Consumer\Part\Consumer:
+        arguments:
+            $producer: '@old_sound_rabbit_mq.part_producer'

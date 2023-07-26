@@ -25,16 +25,10 @@ class Consumer implements ConsumerInterface
             return $this->reject($e->getMessage());
         }
 
-        foreach ($message->getTexts() as $index => $text) {
-            $partMessage = new PartMessage(
-                $text,
-                $index + 1 === count($message->getTexts()) ? $msg->getBody() : null
-            );
-            try {
-                $this->producer->publish($partMessage->toAMQPMessage());
-            } catch (JsonException $e) {
-                return $this->reject($e->getMessage());
-            }
+        try {
+            $this->producer->publish((new PartMessage($message->getTexts()))->toAMQPMessage());
+        } catch (JsonException $e) {
+            return $this->reject($e->getMessage());
         }
 
         return self::MSG_ACK;

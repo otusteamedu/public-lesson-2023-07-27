@@ -6,9 +6,16 @@ use JsonException;
 
 class Message
 {
-    private string $text;
+    /**
+     * @param string[] $texts
+     */
+    public function __construct(
+        private readonly array $texts,
+        private readonly int $index,
+        private readonly array $result,
+    ) {
+    }
 
-    private ?string $sourceMessage;
 
     /**
      * @throws JsonException
@@ -16,20 +23,33 @@ class Message
     public static function createFromQueue(string $messageBody): self
     {
         $message = json_decode($messageBody, true, 512, JSON_THROW_ON_ERROR);
-        $result = new self();
-        $result->text = $message['text'];
-        $result->sourceMessage = $message['sourceMessage'];
 
-        return $result;
+        return new self($message['texts'], $message['index'], $message['result']);
     }
 
-    public function getText(): string
+    /**
+     * @throws JsonException
+     */
+    public function toAMQPMessage(): string
     {
-        return $this->text;
+        return json_encode(
+            ['texts' => $this->texts, 'index' => $this->index, 'result' => $this->result],
+            JSON_THROW_ON_ERROR,
+        );
     }
 
-    public function getSourceMessage(): ?string
+    public function getTexts(): array
     {
-        return $this->sourceMessage;
+        return $this->texts;
+    }
+
+    public function getIndex(): int
+    {
+        return $this->index;
+    }
+
+    public function getResult(): array
+    {
+        return $this->result;
     }
 }
