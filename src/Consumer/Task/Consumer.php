@@ -15,13 +15,15 @@ class Consumer implements ConsumerInterface
     {
     }
 
-    public function execute(AMQPMessage $msg): int
+    public function execute(AMQPMessage $msg): string
     {
         try {
             $message = Message::createFromQueue($msg->getBody());
         } catch (JsonException $e) {
             return $this->reject($e->getMessage());
         }
+
+        sleep(2);
 
         /** @var Task|null $task */
         $task = $this->entityManager->getRepository(Task::class)->find($message->getTaskId());
@@ -31,7 +33,13 @@ class Consumer implements ConsumerInterface
             $this->entityManager->flush();
         }
 
-        return self::MSG_ACK;
+        return json_encode(
+            [
+                'result' => $task->getResult(),
+                'process_time' => $task->getCompletedAt()?->diff($task->getCreatedAt())->s,
+            ],
+            JSON_THROW_ON_ERROR,
+        );
     }
 
     private function reject(string $error): int

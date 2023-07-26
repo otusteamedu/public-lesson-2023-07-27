@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Task;
+use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
-use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +13,7 @@ class TaskController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly ProducerInterface $producer,
+        private readonly TaskService $taskService,
     ) {
     }
 
@@ -23,8 +23,6 @@ class TaskController extends AbstractController
         $this->entityManager->persist($task);
         $this->entityManager->flush();
 
-        $this->producer->publish(json_encode(['taskId' => $task->getId()], JSON_THROW_ON_ERROR));
-
-        return new JsonResponse('Task accepted', Response::HTTP_ACCEPTED);
+        return new JsonResponse($this->taskService->call($task), Response::HTTP_OK, [], true);
     }
 }

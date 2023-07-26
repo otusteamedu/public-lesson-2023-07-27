@@ -35,6 +35,7 @@ services:
         arguments:
             $producer: '@old_sound_rabbit_mq.part_producer'
 
-    App\Controller\TaskController:
+    App\Service\TaskService:
         arguments:
-            $producer: '@old_sound_rabbit_mq.task_producer'
+            $rpcClient: '@old_sound_rabbit_mq.task_rpc'
+            $rpcServer: 'task'
