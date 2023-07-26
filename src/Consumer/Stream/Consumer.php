@@ -3,15 +3,17 @@
 namespace App\Consumer\Stream;
 
 use App\Consumer\Stream\Input\Message;
-use App\Entity\MessageLog;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Consumer\Stream\Output\PartMessage;
 use JsonException;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
+use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class Consumer implements ConsumerInterface
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(
+        private readonly ProducerInterface $producer,
+    )
     {
     }
 
@@ -23,15 +25,17 @@ class Consumer implements ConsumerInterface
             return $this->reject($e->getMessage());
         }
 
-        foreach ($message->getTexts() as $text) {
-            sleep(1);
-            echo $text."\n";
+        foreach ($message->getTexts() as $index => $text) {
+            $partMessage = new PartMessage(
+                $text,
+                $index + 1 === count($message->getTexts()) ? $msg->getBody() : null
+            );
+            try {
+                $this->producer->publish($partMessage->toAMQPMessage());
+            } catch (JsonException $e) {
+                return $this->reject($e->getMessage());
+            }
         }
-
-        $messageLog = new MessageLog();
-        $messageLog->setMessage($msg->getBody());
-        $this->entityManager->persist($messageLog);
-        $this->entityManager->flush();
 
         return self::MSG_ACK;
     }
